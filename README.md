@@ -1,60 +1,31 @@
-# svelted-heroicons
+# svg-to-svelte
 
-[![NPM](https://nodei.co/npm/svelted-heroicons.png)](https://npmjs.org/package/svelted-heroicons)
-
-My attempt for better dev experience when using Heroicons in Svelte.
-
-## Installation
-
-```bash
-npm install --save-dev svelted-heroicons
-```
+I use `unplugin-icons` most of the time, but not when it comes to dynamic icon. This is a helper to convert SVG to Svelte component and the ability to import them dynamically in any bundler like Vite. With the generated components and types, Vite should be happy to resolve the dynamic imports.
 
 ## Usage
 
-### 1. 1-1
+1. Put your SVG files in `src/icons/`.
 
-This means, one component for one equivalent icon.
+2. Build.
+```bash
+pnpm run build
 
-```svelte
-<!-- src/lib/Icon.svelte -->
-<script lang="ts">
-  import MiniWifi from 'svelted-heroicons/dist/mini/Wifi.svelte';
-  import SolidWifi from 'svelted-heroicons/dist/solid/Wifi.svelte';
-  import OutlineWifi from 'svelted-heroicons/dist/outline/Wifi.svelte';
-</script>
-
-<SolidWifi style="width: 12px; height: 12px; color: red; background: blue;" />
-<MiniWifi class="w-12 h-12 text-red-500 bg-blue-500" />
+# or npm run build
 ```
 
-### 2. Dynamic 1-all (Recommended)
-
-For those who don't like to have so many imports (including me), this is your way to go.
-
-1. Create a wrapper component that acts as a main entry to access the icons.
+3. Import and use.
 
 ```svelte
-<!-- src/lib/Icon.svelte -->
-<script lang="ts">
-	import type { IconType, IconName } from 'svelted-heroicons';
-	export let type: IconType = 'solid';
-	export let name: IconName;
+<script>
+	import { Backpack, type IconName } from 'svelte-custom-icons';
+	let name: IconName = 'Glasses';
 </script>
 
-{#await import(`../../node_modules/svelted-heroicons/dist/${type}/${name}.svelte`) then module} <!-- must be relative path due to dynamic-import-vars#limitations -->
-	<svelte:component this={module.default} class={$$restProps.class} />
+<Backpack class="w-8 h-8 text-red-500" />
+
+<!-- vite dynamic import -->
+<!-- better put this in a component with a name prop -->
+{#await import(`../node_modules/svelte-custom-icons/dist/icons/${name}.svelte`) then module}
+	<svelte:component this={module.default} class="w-8 h-8 text-red-500" />
 {/await}
-```
-
-2. Import `Icon.svelte` and start to use.
-
-```svelte
-<script lang="ts">
-	import Icon from '$lib/Icon.svelte';
-</script>
-
-<Icon name="AcademicCap" class="w-12 h-12 text-red-500" />
-<Icon type="outline" name="AcademicCap" class="w-12 h-12 text-red-500" />
-<Icon type="mini" name="AcademicCap" class="w-12 h-12 text-red-500" />
 ```
